@@ -1,18 +1,25 @@
 package com.example.note_book_app;
 
+import android.content.Intent;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private FloatingActionButton add_button;
+
+    private DatabaseHelper DB;
+    private ArrayList<String> book_id, book_title, book_author, book_pages;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,9 +33,32 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, AddActivity.class);
-              startActivity(intent);
+                startActivity(intent);
             }
         });
 
+        DB = new DatabaseHelper(MainActivity.this);
+        book_id = new ArrayList<>();
+        book_title = new ArrayList<>();
+        book_author = new ArrayList<>();
+        book_pages = new ArrayList<>();
+
+        storeDataInArrayList();
+
+    }
+
+    void storeDataInArrayList(){
+        Cursor cursor = DB.readAllData();
+
+        if(cursor.getCount() == 0){
+            Toast.makeText(MainActivity.this, "No Data Found.",Toast.LENGTH_SHORT).show();
+        }else{
+           while (cursor.moveToNext()){
+               book_id.add(cursor.getString(0));
+               book_title.add(cursor.getString(1));
+               book_author.add(cursor.getString(2));
+               book_pages.add(cursor.getString(3));
+           }
+        }
     }
 }
