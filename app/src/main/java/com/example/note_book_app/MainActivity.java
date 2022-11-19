@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -20,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
 
     private DatabaseHelper DB;
     private ArrayList<String> book_id, book_title, book_author, book_pages;
+    private CustomAdaptor customAdaptor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,21 +47,33 @@ public class MainActivity extends AppCompatActivity {
         book_pages = new ArrayList<>();
 
         storeDataInArrayList();
-
+        System.out.println("note: " + book_id + book_title + book_author + book_pages);
+        customAdaptor = new CustomAdaptor(MainActivity.this, this, book_id, book_title, book_author, book_pages);
+        recyclerView.setAdapter(customAdaptor);
+        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
     }
 
-    void storeDataInArrayList(){
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1) {
+            recreate();
+        }
+    }
+
+    void storeDataInArrayList() {
         Cursor cursor = DB.readAllData();
 
-        if(cursor.getCount() == 0){
-            Toast.makeText(MainActivity.this, "No Data Found.",Toast.LENGTH_SHORT).show();
-        }else{
-           while (cursor.moveToNext()){
-               book_id.add(cursor.getString(0));
-               book_title.add(cursor.getString(1));
-               book_author.add(cursor.getString(2));
-               book_pages.add(cursor.getString(3));
-           }
+        if (cursor.getCount() == 0) {
+            Toast.makeText(MainActivity.this, "No Data Found.", Toast.LENGTH_SHORT).show();
+        } else {
+            while (cursor.moveToNext()) {
+                book_id.add(cursor.getString(0));
+                book_title.add(cursor.getString(1));
+                book_author.add(cursor.getString(2));
+                book_pages.add(cursor.getString(3));
+            }
         }
     }
 }
