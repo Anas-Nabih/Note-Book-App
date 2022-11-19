@@ -10,7 +10,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Note_book_app">
         <activity
-            android:label="Update Book"
             android:parentActivityName=".MainActivity"
             android:name=".UpdateActivity"
             android:exported="false" />

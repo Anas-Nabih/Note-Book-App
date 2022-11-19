@@ -1,12 +1,19 @@
 package com.example.note_book_app;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private FloatingActionButton add_button;
+    private ImageView emptyPLaceHolder;
 
     private DatabaseHelper DB;
     private ArrayList<String> book_id, book_title, book_author, book_pages;
@@ -31,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerViewId);
         add_button = findViewById(R.id.add_button_Id);
+        emptyPLaceHolder = findViewById(R.id.emptyPlaceHolder);
 
         add_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         Cursor cursor = DB.readAllData();
 
         if (cursor.getCount() == 0) {
+            emptyPLaceHolder.setVisibility(View.VISIBLE);
             Toast.makeText(MainActivity.this, "No Data Found.", Toast.LENGTH_SHORT).show();
         } else {
             while (cursor.moveToNext()) {
@@ -74,6 +84,48 @@ public class MainActivity extends AppCompatActivity {
                 book_author.add(cursor.getString(2));
                 book_pages.add(cursor.getString(3));
             }
+            emptyPLaceHolder.setVisibility(View.GONE);
         }
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.my_menu,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId() == R.id.delete_all){
+            confirmDialog();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    void confirmDialog(){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle("Delete All?");
+        alertDialog.setMessage("Do you want to delete all?") ;
+        alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                DatabaseHelper DB = new DatabaseHelper(MainActivity.this);
+                DB.deleteAll();
+                Intent intent = new Intent(MainActivity.this,MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+        alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+
+        alertDialog.create().show();
+
+    }
+
 }
